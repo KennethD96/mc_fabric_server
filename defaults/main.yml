@@ -78,3 +78,8 @@ mc_fabric_server_server_properties:
 mc_fabric_server_save_all_interval: 10
 
 mc_fabric_server_fabric_modlist: []
+  # - filename: fabric-api-0.121.0+1.21.5.jar
+  #   url: https://cdn.modrinth.com/data/P7dR8mSH/versions/hBmLTbVB/fabric-api-0.121.0%2B1.21.5.jar
+  # - filename: Jade-1.21.5-Fabric-18.1.0.jar
+  #   url: https://cdn.modrinth.com/data/nvQzSEkH/versions/EE9Gk8ly/Jade-1.21.5-Fabric-18.1.0.jar
+  # - filename: lithium-fabric-0.16.2+mc1.21.5.jar
