@@ -1,0 +1,30 @@
+#! /usr/bin/sh
+# {{ ansible_managed }}
+
+RETRIES=60
+
+rc=0
+x="$RETRIES"
+while ps -C java > /dev/null
+do
+    if [ $x != 0 ]; then
+        echo "Sending stop command"
+        if {{ mc_fabric_server_rcon_command }} stop | grep "Stopping the server"; then
+            sleep 30
+        elif [ $x == 1 ]; then
+            echo "Did not receive confirmation."
+            sleep 5
+        else
+            echo "Did not receive confirmation. Retrying"
+            sleep 5
+        fi
+    else
+        echo "Java is still running after $RETRIES shutdown attempts. Giving up."
+        rc=1
+        break
+    fi
+
+    x=$(($x-1))
+done
+
+exit "$rc"

@@ -1,0 +1,14 @@
+---
+mc_fabric_server_fabric_base_url: https://meta.fabricmc.net/v2/versions/loader
+
+mc_fabric_server_fabric_url:
+  "{{ '%s/%s/%s/%s/server/jar' % (mc_fabric_server_fabric_base_url, mc_fabric_server_mc_ver, mc_fabric_server_fabric_ver, mc_fabric_server_fabric_inst_ver) }}"
+
+mc_fabric_server_fabric_file:
+  "{{ 'fabric-server-mc.%s-loader.%s-launcher.%s.jar' % (mc_fabric_server_mc_ver, mc_fabric_server_fabric_ver, mc_fabric_server_fabric_inst_ver) }}"
+
+mc_fabric_server_start_command:
+  "/usr/bin/java -Xms{{ mc_fabric_server_max_mem }} -Xmx{{ mc_fabric_server_max_mem }} -jar {{ mc_fabric_server_fabric_file }} nogui"
+
+mc_fabric_server_rcon_command:
+  "/usr/bin/mcrcon -H localhost -P {{ mc_fabric_server_properties['rcon-port'] }} -p {{ mc_fabric_server_properties['rcon-password'] }}"

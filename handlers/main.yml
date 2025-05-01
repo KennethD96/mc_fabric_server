@@ -1,0 +1,10 @@
+---
+- name: Restart Minecraft Server
+  ansible.builtin.service:
+    name: minecraft
+    state: restarted
+
+- name: Reload Minecraft Server
+  ansible.builtin.service:
+    name: minecraft
+    state: reloaded

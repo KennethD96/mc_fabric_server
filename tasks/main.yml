@@ -1,0 +1,183 @@
+---
+- name: Install prerequisites
+  ansible.builtin.package:
+    name:
+      - java-21-openjdk-headless
+      - mcrcon
+    state: present
+
+- name: Create minecraft group
+  ansible.builtin.group:
+    name: "{{ mc_fabric_server_group }}"
+    state: present
+
+- name: Create minecraft user
+  ansible.builtin.user:
+    name: "{{ mc_fabric_server_user }}"
+    group: "{{ mc_fabric_server_group }}"
+    home: "{{ mc_fabric_server_home }}"
+    comment: Minecraft Server
+
+- name: Create directories
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+    state: directory
+
+  loop:
+    - path: "{{ mc_fabric_server_home }}"
+      owner: "{{ mc_fabric_server_user }}"
+      group: "{{ mc_fabric_server_group }}"
+      mode: "0775"
+
+    - path: "{{ mc_fabric_server_home + '.bashrc.d/' }}"
+      owner: "{{ mc_fabric_server_user }}"
+      group: "{{ mc_fabric_server_group }}"
+      mode: "0775"
+
+    - path: "{{ mc_fabric_server_root }}"
+      owner: "{{ mc_fabric_server_user }}"
+      group: "{{ mc_fabric_server_group }}"
+      mode: "0775"
+
+    - path: "{{ mc_fabric_server_root + 'mods/' }}"
+      owner: "{{ mc_fabric_server_user }}"
+      group: "{{ mc_fabric_server_group }}"
+      mode: "0775"
+
+    - path: /var/log/journal/
+      owner: root
+      group: root
+      mode: "0664"
+
+- name: Check for existence of server JAR
+  ansible.builtin.stat:
+    path: "{{ mc_fabric_server_root + mc_fabric_server_fabric_file }}"
+  register: _fabric_loader
+
+- name: Download fabric launcher
+  ansible.builtin.get_url:
+    url: "{{ mc_fabric_server_fabric_url }}"
+    dest: "{{ mc_fabric_server_root + mc_fabric_server_fabric_file }}"
+    owner: "{{ mc_fabric_server_user }}"
+    group: "{{ mc_fabric_server_group }}"
+    mode: "0644"
+  register: _get_fabric
+  when: not _fabric_loader.stat.exists
+
+- name: Download fabric mods
+  ansible.builtin.get_url:
+    url: "{{ item.url }}"
+    dest: "{{ mc_fabric_server_root + 'mods/' + item.filename }}"
+    owner: "{{ mc_fabric_server_user }}"
+    group: "{{ mc_fabric_server_group }}"
+    mode: "0644"
+  loop: "{{ mc_fabric_server_fabric_modlist }}"
+  notify: Restart Minecraft Server
+
+- name: Find fabric mods
+  ansible.builtin.find:
+    paths: "{{ mc_fabric_server_root }}/mods/"
+  register: _find_mods
+
+- name: Remove unused mods
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ _find_mods.files }}"
+  when: item.path | basename not in mc_fabric_server_fabric_modlist | map(attribute='filename')
+  loop_control:
+    label: "{{ item.path | basename }}"
+  notify: Restart Minecraft Server
+
+- name: Create startup script
+  ansible.builtin.template:
+    src: start.sh.j2
+    dest: "{{ mc_fabric_server_root + 'start.sh' }}"
+    owner: "{{ mc_fabric_server_user }}"
+    group: "{{ mc_fabric_server_group }}"
+    mode: "774"
+
+- name: Create shutdown script
+  ansible.builtin.template:
+    src: stop.sh.j2
+    dest: "{{ mc_fabric_server_root + 'stop.sh' }}"
+    owner: "{{ mc_fabric_server_user }}"
+    group: "{{ mc_fabric_server_group }}"
+    mode: "770"
+
+- name: Configure server.properties
+  ansible.builtin.blockinfile:
+    path: "{{ mc_fabric_server_root + 'server.properties' }}"
+    block: "{{ lookup('ansible.builtin.template', 'server.properties.j2') }}"
+    marker_begin: "aaaa"
+    marker_end: "zzzz"
+    marker: "{mark}_ansible_block="
+    owner: "{{ mc_fabric_server_user }}"
+    group: "{{ mc_fabric_server_group }}"
+    mode: "0664"
+    create: true
+  notify: Restart Minecraft Server
+
+- name: Create server-icon.png
+  ansible.builtin.copy:
+    src: server-icon.png
+    dest: "{{ mc_fabric_server_root }}"
+    owner: "{{ mc_fabric_server_user }}"
+    group: "{{ mc_fabric_server_group }}"
+    mode: "0664"
+  with_fileglob:
+    - server-icon.png
+  notify: Restart Minecraft Server
+
+- name: Create minecraft service
+  ansible.builtin.template:
+    src: minecraft.service.j2
+    dest: /etc/systemd/system/minecraft.service
+    owner: root
+    group: root
+    mode: "644"
+  notify: Restart Minecraft Server
+
+- name: Enable minecraft service
+  ansible.builtin.service:
+    name: minecraft
+    state: started
+    daemon_reload: true
+    enabled: true
+
+- name: Wait for server to create eula.txt
+  ansible.builtin.stat:
+    path: "{{ mc_fabric_server_root + 'eula.txt' }}"
+  register: _eula_file
+  until: _eula_file.stat.exists
+  retries: 300
+  delay: 1
+
+- name: Accept the Microsoft EULA
+  ansible.builtin.lineinfile:
+    path: "{{ mc_fabric_server_root + 'eula.txt' }}"
+    search_string: eula=false
+    line: eula=true
+  when: mc_fabric_server_eula_accepted | default(false) | bool
+  notify: Restart Minecraft Server
+
+- name: Create RCON alias
+  ansible.builtin.copy:
+    content: |-
+      # Managed by Ansible
+      alias rcon="{{ mc_fabric_server_rcon_command }}"
+    dest: "{{ mc_fabric_server_home + '.bashrc.d/minecraft' }}"
+    owner: "{{ mc_fabric_server_user }}"
+    group: "{{ mc_fabric_server_group }}"
+    mode: "0774"
+
+- name: Create save-all cron
+  ansible.builtin.cron:
+    name: save-all
+    user: minecraft
+    minute: "*/{{ mc_fabric_server_save_all_interval }}"
+    job: "{{ mc_fabric_server_rcon_command }} save-all"
+  when: mc_fabric_server_save_all_interval
