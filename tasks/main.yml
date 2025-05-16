@@ -181,3 +181,21 @@
     minute: "*/{{ mc_fabric_server_save_all_interval }}"
     job: "{{ mc_fabric_server_rcon_command }} save-all"
   when: mc_fabric_server_save_all_interval
+
+- name: Grant minecraft group access to restart service
+  community.general.sudoers:
+    name: mc_fabric_server
+    group: "{{ mc_fabric_server_group }}"
+    nopassword: true
+    runas: root
+    commands:
+      - /usr/bin/systemctl ^disable (minecraft|minecraft\.service)$
+      - /usr/bin/systemctl ^edit (minecraft|minecraft\.service)$
+      - /usr/bin/systemctl ^enable (minecraft|minecraft\.service)$
+      - /usr/bin/systemctl ^reload (minecraft|minecraft\.service)$
+      - /usr/bin/systemctl ^reset-failed (minecraft|minecraft\.service)$
+      - /usr/bin/systemctl ^restart (minecraft|minecraft\.service)$
+      - /usr/bin/systemctl ^show (minecraft|minecraft\.service)$
+      - /usr/bin/systemctl ^start (minecraft|minecraft\.service)$
+      - /usr/bin/systemctl ^status (minecraft|minecraft\.service)$
+      - /usr/bin/systemctl ^stop (minecraft|minecraft\.service)$
