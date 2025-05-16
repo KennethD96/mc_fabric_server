@@ -69,12 +69,12 @@
 
 - name: Download fabric mods
   ansible.builtin.get_url:
-    url: "{{ item.url }}"
-    dest: "{{ mc_fabric_server_root + 'mods/' + item.filename }}"
+    url: "{{ item }}"
+    dest: "{{ mc_fabric_server_root + 'mods/' }}"
     owner: "{{ mc_fabric_server_user }}"
     group: "{{ mc_fabric_server_group }}"
     mode: "0644"
-  loop: "{{ mc_fabric_server_fabric_modlist }}"
+  loop: "{{ mc_fabric_server_modlist }}"
   notify: Restart Minecraft Server
 
 - name: Find fabric mods
@@ -87,7 +87,7 @@
     path: "{{ item.path }}"
     state: absent
   loop: "{{ _find_mods.files }}"
-  when: item.path | basename not in mc_fabric_server_fabric_modlist | map(attribute='filename')
+  when: item.path | basename not in mc_fabric_server_modlist | map('basename')
   loop_control:
     label: "{{ item.path | basename }}"
   notify: Restart Minecraft Server

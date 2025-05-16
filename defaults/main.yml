@@ -9,7 +9,7 @@ mc_fabric_server_group: minecraft
 mc_fabric_server_home: "/opt/{{ mc_fabric_server_user }}/"
 mc_fabric_server_root: "{{ mc_fabric_server_home + 'server/' }}"
 
-mc_fabric_server_max_mem: 4G
+mc_fabric_server_max_mem: 2G
 
 mc_fabric_server_server_properties:
   accepts-transfers: "false"
@@ -78,9 +78,6 @@ mc_fabric_server_server_properties:
 mc_fabric_server_save_all_interval: 10
 
 mc_fabric_server_fabric_modlist: []
-  # - filename: fabric-api-0.121.0+1.21.5.jar
-  #   url: https://cdn.modrinth.com/data/P7dR8mSH/versions/hBmLTbVB/fabric-api-0.121.0%2B1.21.5.jar
-  # - filename: Jade-1.21.5-Fabric-18.1.0.jar
-  #   url: https://cdn.modrinth.com/data/nvQzSEkH/versions/EE9Gk8ly/Jade-1.21.5-Fabric-18.1.0.jar
-  # - filename: lithium-fabric-0.16.2+mc1.21.5.jar
-  #   url: https://cdn.modrinth.com/data/gvQqBUqZ/versions/VWYoZjBF/lithium-fabric-0.16.2%2Bmc1.21.5.jar
+  # - https://cdn.modrinth.com/data/6VdDUivB/versions/3qgZ07gz/essential_commands-0.37.3-mc1.21.5.jar
+  # - https://github.com/Patbox/StyledChat/releases/download/2.8.0%2B1.21.5/styled-chat-2.8.0+1.21.5.jar
+  # - https://github.com/Patbox/StyledPlayerList/releases/download/3.7.0%2B1.21.5/styledplayerlist-3.7.0+1.21.5.jar
