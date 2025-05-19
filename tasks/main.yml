@@ -47,6 +47,11 @@
       group: "{{ mc_fabric_server_group }}"
       mode: "0775"
 
+    - path: "{{ mc_fabric_server_root + 'config/' }}"
+      owner: "{{ mc_fabric_server_user }}"
+      group: "{{ mc_fabric_server_group }}"
+      mode: "0775"
+
     - path: /var/log/journal/
       owner: root
       group: root
@@ -121,15 +126,56 @@
     create: true
   notify: Restart Minecraft Server
 
+- name: Copy mod directories
+  ansible.builtin.copy:
+    src: "{{ item.root + item.path }}"
+    dest: "{{ mc_fabric_server_root + 'config/' }}"
+    owner: "{{ mc_fabric_server_user }}"
+    group: "{{ mc_fabric_server_group }}"
+    mode: "0644"
+  with_filetree:
+    - "files/mc_fabric_server/config/"
+  when: item.state == "directory"
+  loop_control:
+    label: "{{ item.path }}"
+  notify: Restart Minecraft Server
+
+- name: Copy mod configurations
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ mc_fabric_server_root + 'config/' }}"
+    owner: "{{ mc_fabric_server_user }}"
+    group: "{{ mc_fabric_server_group }}"
+    mode: "0644"
+  with_fileglob:
+    - "files/mc_fabric_server/config/*"
+  loop_control:
+    label: "{{ item | basename }}"
+  notify: Restart Minecraft Server
+
+- name: Template mod configurations
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ mc_fabric_server_root + 'config/' + item.path }}"
+    owner: "{{ mc_fabric_server_user }}"
+    group: "{{ mc_fabric_server_group }}"
+    mode: "0644"
+  with_filetree:
+    - "templates/mc_fabric_server/config/"
+  when: item.state == "file"
+  loop_control:
+    label: "{{ item.path }}"
+  notify: Restart Minecraft Server
+
 - name: Create server-icon.png
   ansible.builtin.copy:
-    src: server-icon.png
+    src: "{{ item }}"
     dest: "{{ mc_fabric_server_root }}"
     owner: "{{ mc_fabric_server_user }}"
     group: "{{ mc_fabric_server_group }}"
     mode: "0664"
   with_fileglob:
-    - server-icon.png
+    - files/mc_fabric_server/server-icon.png
   notify: Restart Minecraft Server
 
 - name: Create minecraft service
