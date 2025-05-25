@@ -133,9 +133,11 @@
     owner: "{{ mc_fabric_server_user }}"
     group: "{{ mc_fabric_server_group }}"
     mode: "0644"
-  with_filetree:
+  with_community.general.filetree:
     - "files/mc_fabric_server/config/"
-  when: item.state == "directory"
+  when:
+    - item.state == "directory"
+    - not "/" in item.path
   loop_control:
     label: "{{ item.path }}"
   notify: Restart Minecraft Server
@@ -160,7 +162,7 @@
     owner: "{{ mc_fabric_server_user }}"
     group: "{{ mc_fabric_server_group }}"
     mode: "0644"
-  with_filetree:
+  with_community.general.filetree:
     - "templates/mc_fabric_server/config/"
   when: item.state == "file"
   loop_control:
