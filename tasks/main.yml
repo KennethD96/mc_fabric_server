@@ -228,7 +228,9 @@
     user: minecraft
     minute: "*/{{ mc_fabric_server_save_all_interval }}"
     job: "{{ mc_fabric_server_rcon_command }} save-all"
-  when: mc_fabric_server_save_all_interval
+  when:
+    - mc_fabric_server_save_all_interval is number
+    - mc_fabric_server_save_all_interval > 0
 
 - name: Grant minecraft group access to restart service
   community.general.sudoers:
