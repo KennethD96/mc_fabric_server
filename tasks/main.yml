@@ -60,7 +60,7 @@
 - name: Check for existence of server JAR
   ansible.builtin.stat:
     path: "{{ mc_fabric_server_root + mc_fabric_server_fabric_file }}"
-  register: _fabric_loader
+  register: _mc_fabric_server_loader
 
 - name: Download fabric launcher
   ansible.builtin.get_url:
@@ -69,8 +69,7 @@
     owner: "{{ mc_fabric_server_user }}"
     group: "{{ mc_fabric_server_group }}"
     mode: "0644"
-  register: _get_fabric
-  when: not _fabric_loader.stat.exists
+  when: not _mc_fabric_server_loader.stat.exists
 
 - name: Download fabric mods
   ansible.builtin.get_url:
@@ -85,13 +84,13 @@
 - name: Find fabric mods
   ansible.builtin.find:
     paths: "{{ mc_fabric_server_root }}/mods/"
-  register: _find_mods
+  register: _mc_fabric_server_find_mods
 
 - name: Remove unused mods
   ansible.builtin.file:
     path: "{{ item.path }}"
     state: absent
-  loop: "{{ _find_mods.files }}"
+  loop: "{{ _mc_fabric_server_find_mods.files }}"
   when: item.path | basename not in mc_fabric_server_modlist | map('basename')
   loop_control:
     label: "{{ item.path | basename }}"
@@ -99,19 +98,15 @@
 
 - name: Create startup script
   ansible.builtin.template:
-    src: start.sh.j2
-    dest: "{{ mc_fabric_server_root + 'start.sh' }}"
+    src: "{{ item }}.j2"
+    dest: "{{ mc_fabric_server_root + item }}"
     owner: "{{ mc_fabric_server_user }}"
     group: "{{ mc_fabric_server_group }}"
-    mode: "774"
-
-- name: Create shutdown script
-  ansible.builtin.template:
-    src: stop.sh.j2
-    dest: "{{ mc_fabric_server_root + 'stop.sh' }}"
-    owner: "{{ mc_fabric_server_user }}"
-    group: "{{ mc_fabric_server_group }}"
-    mode: "770"
+    mode: "750"
+  loop:
+    - start.sh
+    - stop.sh
+    - rcon.sh
 
 - name: Configure server.properties
   ansible.builtin.blockinfile:
@@ -122,7 +117,7 @@
     marker: "{mark}_ansible_block="
     owner: "{{ mc_fabric_server_user }}"
     group: "{{ mc_fabric_server_group }}"
-    mode: "0664"
+    mode: "0640"
     create: true
   notify: Restart Minecraft Server
 
@@ -199,8 +194,8 @@
 - name: Wait for server to create eula.txt
   ansible.builtin.stat:
     path: "{{ mc_fabric_server_root + 'eula.txt' }}"
-  register: _eula_file
-  until: _eula_file.stat.exists
+  register: _mc_fabric_server_eula_file
+  until: _mc_fabric_server_eula_file.stat.exists
   retries: 300
   delay: 1
 
@@ -220,14 +215,14 @@
     dest: "{{ mc_fabric_server_home + '.bashrc.d/minecraft' }}"
     owner: "{{ mc_fabric_server_user }}"
     group: "{{ mc_fabric_server_group }}"
-    mode: "0774"
+    mode: "0750"
 
 - name: Create save-all cron
   ansible.builtin.cron:
     name: save-all
     user: minecraft
     minute: "*/{{ mc_fabric_server_save_all_interval }}"
-    job: "{{ mc_fabric_server_rcon_command }} save-all"
+    job: "{{ mc_fabric_server_root + 'rcon.sh' }} save-all"
   when:
     - mc_fabric_server_save_all_interval is number
     - mc_fabric_server_save_all_interval > 0

@@ -1,7 +1,7 @@
 ---
-mc_fabric_server_mc_ver: 1.21.5
-mc_fabric_server_fabric_ver: 0.16.14
-mc_fabric_server_fabric_inst_ver: 1.0.3
+mc_fabric_server_mc_ver: 1.21.8
+mc_fabric_server_fabric_ver: 0.17.2
+mc_fabric_server_fabric_inst_ver: 1.1.0
 
 mc_fabric_server_user: minecraft
 mc_fabric_server_group: minecraft
@@ -17,7 +17,7 @@ mc_fabric_server_server_properties:
   allow-nether: "true"
   broadcast-console-to-ops: "true"
   broadcast-rcon-to-ops: "false"
-  bug-report-link:
+  bug-report-link: ""
   difficulty: easy
   enable-command-block: "false"
   enable-jmx-monitoring: "false"
@@ -34,10 +34,10 @@ mc_fabric_server_server_properties:
   generator-settings: {}
   hardcore: "false"
   hide-online-players: "false"
-  initial-disabled-packs:
+  initial-disabled-packs: ""
   initial-enabled-packs: vanilla
   level-name: world
-  level-seed:
+  level-seed: ""
   level-type: minecraft\:normal
   log-ips: "true"
   max-chained-neighbor-updates: 1000000
@@ -55,21 +55,21 @@ mc_fabric_server_server_properties:
   pvp: "true"
   query-port: 25565
   rate-limit: 0
-  rcon-password:
+  rcon-password: ""
   rcon-port: 25575
   region-file-compression: deflate
   require-resource-pack: "false"
-  resource-pack-id:
-  resource-pack-prompt:
-  resource-pack-sha1:
-  resource-pack:
-  server-ip:
+  resource-pack-id: ""
+  resource-pack-prompt: ""
+  resource-pack-sha1: ""
+  resource-pack: ""
+  server-ip: ""
   server-port: 25565
   simulation-distance: 10
   spawn-monsters: "true"
   spawn-protection: 16
   sync-chunk-writes: "true"
-  text-filtering-config:
+  text-filtering-config: ""
   text-filtering-version: 0
   use-native-transport: "true"
   view-distance: 10

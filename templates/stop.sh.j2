@@ -9,7 +9,7 @@ while ps -C java > /dev/null
 do
     if [ $x != 0 ]; then
         echo "Sending stop command"
-        if {{ mc_fabric_server_rcon_command }} stop | grep "Stopping the server"; then
+        if {{ mc_fabric_server_root + 'rcon.sh' }} stop | grep "Stopping the server"; then
             sleep 30
         elif [ $x == 1 ]; then
             echo "Did not receive confirmation."

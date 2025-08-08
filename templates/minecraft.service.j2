@@ -9,7 +9,7 @@ WorkingDirectory={{ mc_fabric_server_root }}
 
 ExecStart={{ mc_fabric_server_start_command }}
 ExecStop=/usr/bin/sh -c {{ mc_fabric_server_root + 'stop.sh' }}
-ExecReload={{ mc_fabric_server_rcon_command }} reload
+ExecReload=/usr/bin/sh -c "{{ mc_fabric_server_root + 'rcon.sh' }} reload"
 TimeoutSec=900
 # Restart the server when it is stopped or crashed after 30 seconds
 # Comment out RestartSec if you want to restart immediately
