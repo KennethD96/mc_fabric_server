@@ -1,7 +1,7 @@
 ---
-mc_fabric_server_mc_ver: 1.21.8
-mc_fabric_server_fabric_ver: 0.17.2
-mc_fabric_server_fabric_inst_ver: 1.1.0
+mc_fabric_server_mc_ver: 1.21.11
+mc_fabric_server_fabric_ver: 0.18.4
+mc_fabric_server_fabric_inst_ver: 1.1.1
 
 mc_fabric_server_user: minecraft
 mc_fabric_server_group: minecraft
