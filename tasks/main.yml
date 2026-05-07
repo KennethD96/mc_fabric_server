@@ -5,6 +5,8 @@
       - java-21-openjdk-headless
       - mcrcon
     state: present
+  vars:
+    mitogen_task_isolation: fork
 
 - name: Create minecraft group
   ansible.builtin.group:
