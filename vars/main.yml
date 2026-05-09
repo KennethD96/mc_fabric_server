@@ -11,4 +11,4 @@ mc_fabric_server_start_command:
   "/usr/bin/java -Xms{{ mc_fabric_server_max_mem }} -Xmx{{ mc_fabric_server_max_mem }} -jar {{ mc_fabric_server_fabric_file }} nogui"
 
 mc_fabric_server_rcon_command:
-  "/usr/bin/mcrcon -H localhost -P {{ mc_fabric_server_properties['rcon-port'] }} -p {{ mc_fabric_server_properties['rcon-password'] }}"
+  "/usr/bin/mcrcon -H localhost -P {{ mc_fabric_server_properties['rcon-port'] | default('25575') }} -p '{{ mc_fabric_server_properties['rcon-password'] | default('') }}'"
