@@ -2,7 +2,7 @@
 - name: Install prerequisites
   ansible.builtin.package:
     name:
-      - java-21-openjdk-headless
+      - java-latest-openjdk-headless
       - mcrcon
     state: present
   vars:
